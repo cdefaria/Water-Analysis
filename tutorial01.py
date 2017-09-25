@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Simple test case modified from Tutorial01 distributed with flopy
 import numpy as np
 import flopy
