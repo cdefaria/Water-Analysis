@@ -10,3 +10,5 @@ class Node:
         self.m_id=idValue
     def check(self):
         self.m_checked=1
+
+nodes={}

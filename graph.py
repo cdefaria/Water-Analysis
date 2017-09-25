@@ -22,3 +22,17 @@ def sumTo(start, end):
             else
                 return 0
     return sum
+
+def sum_in(id):
+    sum=0
+    for key,value in g[id]:
+        if value >= 0:
+            sum+=value
+    return sum
+
+def sum_out(id):
+    sum=0
+    for key,value in g[id]:
+        if value < 0:
+            sum-=value
+    return sum
