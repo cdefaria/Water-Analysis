@@ -11,4 +11,7 @@ class Node:
     def check(self):
         self.m_checked=1
 
-nodes={}
+nodes=[]
+
+for i in range(1,9):
+    nodes.push(Node(i))
