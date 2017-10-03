@@ -14,4 +14,4 @@ class Node:
 nodes=[]
 
 for i in range(1,9):
-    nodes.push(Node(i))
+    nodes.append(Node(i))
