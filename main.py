@@ -38,7 +38,7 @@ def sumTo(start, end):
                 return value
             #elif nodes[start-1].m_checked == 0:
             else:
-                sum+=sumTo(key,end)
+                sum+=(value+sumTo(key,end))
             #else:
             #    return 0
     return sum
@@ -72,7 +72,7 @@ while cur.m_checked==0 and next(str(cur.m_id)):
         cur.m_through=sum_out(str(cur.m_id))*cur.m_percent
         cur.m_orig=(sum_out(str(cur.m_id))-sum_in(str(cur.m_id)))*cur.m_through
     cur.check()
-    cur=nodes[int(next(str(cur.m_id)))-1]
+    cur=nodes[int(next(cur.m_id))-1]
 
 print("Model 1:")
 for i in nodes:
