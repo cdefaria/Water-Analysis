@@ -20,18 +20,20 @@ nodes=[]
 for i in range(1,10):
     nodes.append(Node(str(i)))
 
-g = {'1':{'2':-5, '4':-5}, '2':{'1':5, '3':-2, '5':-3}, '3':{'2':2}, '4':{'1':5}, '5':{'2':3, '6':-8, '8':-2}, '6':{'5':8, '9':-3}, '8':{'5':2, '9':-2},  '9':{'6':3, '8':2}}
+g = {'1':{'2':-5, '4':-5}, '2':{'1':5, '3':-5, '5':-5}, '3':{'2':5, '6':5}, '4':{'1':5, '5':-5}, '5':{'2':5, '4':5, '6':-8, '8':-2}, '6':{'3':-5, '5':8, '9':-1}, '8':{'5':2},  '9':{'6':1}}
 
 def next(c):
-    for key,value in g[c].items():
-        if value > 0:
-            if nodes[int(key)-1].m_checked == 0:
-                return key
+    if nodes[c] and str(c+1) in g.keys():
+        return str(c+1)
+    #for key,value in g[c].items():
+    #    if value < 0:
+    #        if nodes[int(key)-1].m_checked == 0:
+    #            return key
     return 0
 
 def sumTo(start, end):
     sum=0
-    nodes[int(start)-1].check()
+    #nodes[int(start)-1].check()
     for key,value in g[start].items():
         if value > 0:
             if key == end:
@@ -46,14 +48,14 @@ def sumTo(start, end):
 def sum_in(id):
     sum=0
     for key,value in g[id].items():
-        if value >= 0:
-            sum+=value
+        if value < 0:
+            sum+=abs(value)
     return sum
 
 def sum_out(id):
     sum=0
     for key,value in g[id].items():
-        if value < 0:
+        if value > 0:
             sum+=abs(value)
     return sum
 
@@ -62,17 +64,17 @@ endpoint = input("What sensor do you want to be the end point?\n")
 
 
 cur=nodes[int(endpoint)-1]
-while cur.m_checked==0 and next(str(cur.m_id)):
-    if cur.m_id == endpoint:
+while cur.m_checked==0 and next(int(cur.m_id)):
+    if str(cur.m_id) == str(endpoint):
         cur.m_percent = 1
-        cur.m_through=sum_in(str(cur.m_id))
+        cur.m_through=sum_out(str(cur.m_id))
         cur.m_orig=sum_out(str(cur.m_id))-sum_in(str(cur.m_id))
     else:
-        cur.m_percent=sumTo(str(cur.m_id), endpoint)/sum_in(str(cur.m_id))
+        cur.m_percent=sumTo(str(cur.m_id), endpoint)/sum_out(str(cur.m_id))
         cur.m_through=sum_out(str(cur.m_id))*cur.m_percent
         cur.m_orig=(sum_out(str(cur.m_id))-sum_in(str(cur.m_id)))*cur.m_through
     cur.check()
-    cur=nodes[int(next(cur.m_id))-1]
+    cur=nodes[int(next(int(cur.m_id)))-1]
 
 print("Model 1:")
 for i in nodes:
