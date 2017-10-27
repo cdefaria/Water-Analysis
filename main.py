@@ -70,9 +70,9 @@ while cur.m_checked==0 and next(int(cur.m_id)):
         cur.m_through=sum_out(str(cur.m_id))
         cur.m_orig=sum_out(str(cur.m_id))-sum_in(str(cur.m_id))
     else:
-        cur.m_percent=sumTo(str(cur.m_id), endpoint)/sum_out(str(cur.m_id))
+        cur.m_percent=sum_out(str(cur.m_id))/sumTo(str(cur.m_id), endpoint)
         cur.m_through=sum_out(str(cur.m_id))*cur.m_percent
-        cur.m_orig=(sum_out(str(cur.m_id))-sum_in(str(cur.m_id)))*cur.m_through
+        cur.m_orig=(sum_out(str(cur.m_id))-sum_in(str(cur.m_id)))*cur.m_percent
     cur.check()
     cur=nodes[int(next(int(cur.m_id)))-1]
 
@@ -80,7 +80,7 @@ print("Model 1:")
 for i in nodes:
     percent=str(i.m_percent*100)+"% "
     if(int(i.m_id)%3):
-        print(percent,end='')
+        print(percent, end='')
     else:
         print(percent)
 
@@ -88,7 +88,7 @@ print("Model 2:")
 for i in nodes:
     through=str(i.m_through)+" "
     if(int(i.m_id)%3):
-        print(through,end='')
+        print(through, end='')
     else:
         print(through)
 
@@ -96,6 +96,6 @@ print("Model 3:")
 for i in nodes:
     origin=str(i.m_orig)+" "
     if(int(i.m_id)%3):
-        print(origin,end='')
+        print(origin, end='')
     else:
         print(origin)
