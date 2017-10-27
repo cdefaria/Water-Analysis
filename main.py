@@ -20,15 +20,13 @@ nodes=[]
 for i in range(1,10):
     nodes.append(Node(str(i)))
 
+#nodes.append(0)
+
 g = {'1':{'2':-5, '4':-5}, '2':{'1':5, '3':-5, '5':-5}, '3':{'2':5, '6':5}, '4':{'1':5, '5':-5}, '5':{'2':5, '4':5, '6':-8, '8':-2}, '6':{'3':-5, '5':8, '9':-1}, '8':{'5':2},  '9':{'6':1}}
 
 def next(c):
     if nodes[c] and str(c+1) in g.keys():
         return str(c+1)
-    #for key,value in g[c].items():
-    #    if value < 0:
-    #        if nodes[int(key)-1].m_checked == 0:
-    #            return key
     return 0
 
 def sumTo(start, end):
@@ -37,11 +35,8 @@ def sumTo(start, end):
         if value > 0:
             if key == end:
                 return value
-            #elif nodes[start-1].m_checked == 0:
             else:
                 sum+=(value+sumTo(key,end))
-            #else:
-            #    return 0
     return sum
 
 def sum_in(id):
@@ -64,17 +59,26 @@ endpoint = input("What sensor do you want to be the end point?\n")
 
 cur=nodes[int(endpoint)-1]
 while cur.m_checked==0 and next(int(cur.m_id)):
+    sIn=sum_in(str(cur.m_id))
+    sOut=sum_out(str(cur.m_id))
+    sTo=sumTo(str(cur.m_id), endpoint)
     if str(cur.m_id) == str(endpoint):
         cur.m_percent = 1
-        cur.m_through=sum_in(str(cur.m_id))
-        cur.m_orig=sum_out(str(cur.m_id))-sum_in(str(cur.m_id))
+        cur.m_through=sIn
+        if sOut>sIn:
+            cur.m_orig=sOut-sIn
+        else:
+            cur.m_orig=0
     else:
-        if sum_in(str(cur.m_id)):
-            cur.m_percent=sumTo(str(cur.m_id), endpoint)/sum_in(str(cur.m_id))
+        if sIn:
+            cur.m_percent=sTo/sIn
         else:
             cur.m_percent=0
-        cur.m_through=sum_in(str(cur.m_id))*cur.m_percent
-        cur.m_orig=(sum_out(str(cur.m_id))-sum_in(str(cur.m_id)))*cur.m_percent
+        cur.m_through=sIn*cur.m_percent
+        if sOut>sIn:
+            cur.m_orig=sOut-sIn*cur.m_percent
+        else:
+            cur.m_orig=0
     cur.check()
     cur=nodes[int(next(int(cur.m_id)))-1]
 
