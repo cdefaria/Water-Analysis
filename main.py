@@ -33,7 +33,6 @@ def next(c):
 
 def sumTo(start, end):
     sum=0
-    #nodes[int(start)-1].check()
     for key,value in g[start].items():
         if value > 0:
             if key == end:
@@ -67,11 +66,14 @@ cur=nodes[int(endpoint)-1]
 while cur.m_checked==0 and next(int(cur.m_id)):
     if str(cur.m_id) == str(endpoint):
         cur.m_percent = 1
-        cur.m_through=sum_out(str(cur.m_id))
+        cur.m_through=sum_in(str(cur.m_id))
         cur.m_orig=sum_out(str(cur.m_id))-sum_in(str(cur.m_id))
     else:
-        cur.m_percent=sum_out(str(cur.m_id))/sumTo(str(cur.m_id), endpoint)
-        cur.m_through=sum_out(str(cur.m_id))*cur.m_percent
+        if sum_in(str(cur.m_id)):
+            cur.m_percent=sumTo(str(cur.m_id), endpoint)/sum_in(str(cur.m_id))
+        else:
+            cur.m_percent=0
+        cur.m_through=sum_in(str(cur.m_id))*cur.m_percent
         cur.m_orig=(sum_out(str(cur.m_id))-sum_in(str(cur.m_id)))*cur.m_percent
     cur.check()
     cur=nodes[int(next(int(cur.m_id)))-1]
