@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 import math
+#import tkinter
+import tkinter as tk
+#from Tkinter import *
+from modules.logic import game
+import options
+import random
+import os
+#importlib
 #import print_function 
 #from . import graph
 #import topSort.py
@@ -16,6 +24,8 @@ class Node:
         self.m_checked=1
 
 nodes=[]
+rows = 3
+col = 3
 
 for i in range(1,10):
     nodes.append(Node(str(i)))
@@ -63,11 +73,34 @@ while userFile != "Y" and userFile != "N":
 modFile=""
 if userFile == "Y":
     modFile=input("Enter the file name of of the model you plan to use:\n")
-    from modFile import fff
-    print(fff)
-    #f=open(modFile, 'r')
-    #for line in f:
+    #importlib.import_module(modFile)
+    #print(frf)
+    f=open(modFile, 'r')
+    exe=open("mod.py", 'w')
+    exe.write("#!/usr/bin/env python3\n")
+    exe.write("\n")
+    for line in f:
+        if line[:1] == "#" or line[:3] == "fig" or line[:2] == "ax":
+            continue
+        if line == "mf = flopy.modflow.Modflow(modelname, exe_name=\'../mf2005\')":
+            exe.write("mf = flopy.modflow.Modflow(modelname, exe_name='./mf2005')")
+            continue
+        exe.write(line)
+        if line[:3] == "frf":
+            exe.write("right=open(\"frf.txt\", \'w\')\n")
+            exe.write("right.write(\', \'.join([str(x) for x in frf]))\n")
+        if line[:3] == "fff":
+            exe.write("front=open(\"fff.txt\", \'w\')\n")
+            exe.write("front.write(\', \'.join([str(x) for x in fff]))\n")
+            exe.close()
+            break
+        if line[:4] == "nrow":
+            rows = int(line[7:])
+        if line[:4] == "ncol":
+            cols = int(line[7:])
+    os.system('./bash.sh')
     #    print(line, end='')
+    #from mod import frf, fff
 
 #filename = input("What file do you want to use?\n")
 endpoint = input("What sensor do you want to be the end point?\n")
@@ -120,3 +153,32 @@ for i in nodes:
         print(origin, end='')
     else:
         print(origin)
+
+class App(tk.Tk):
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
+        self.canvas = tk.Canvas(self, width=500, height=500, borderwidth=0, highlightthickness=0)
+        self.canvas.pack(side="top", fill="both", expand="true")
+        self.rows = rows
+        self.columns = cols
+        self.cellwidth = 300/rows
+        self.cellheight = 300/cols
+        self.rect = {}
+        for column in range(cols):
+            for row in range(rows):
+                x1 = column*self.cellwidth
+                y1 = row * self.cellheight
+                x2 = x1 + self.cellwidth
+                y2 = y1 + self.cellheight
+                color = hex(nodes[column+row].through)
+                self.rect[row,column] = self.canvas.create_rectangle(x1,y1,x2,y2, fill="blue", tags="rect")
+        #self.redraw(1000)
+
+
+myapp = App()
+
+myapp.master.title("Modeflow Output Window")
+myapp.master.maxsize(300, 300)
+
+myapp.mainloop()
+

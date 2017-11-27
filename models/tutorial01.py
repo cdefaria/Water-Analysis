@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Simple test case modified from Tutorial01 distributed with flopy
 import numpy as np
 import flopy
@@ -22,7 +22,7 @@ botm = np.linspace(ztop, zbot, nlay + 1)
 
 # Create the discretization object
 dis = flopy.modflow.ModflowDis(mf, nlay, nrow, ncol, delr=delr, delc=delc,
-                               top=ztop, botm=botm[1:])
+                                       top=ztop, botm=botm[1:])
 
 # Variables for the BAS package
 ibound = np.ones((nlay, nrow, ncol), dtype=np.int32)
