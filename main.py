@@ -34,10 +34,10 @@ for i in range(1,10):
 
 g = {'1':{'2':-5, '4':-5}, '2':{'1':5, '3':-5, '5':-5}, '3':{'2':5, '6':5}, '4':{'1':5, '5':-5}, '5':{'2':5, '4':5, '6':-8, '8':-2}, '6':{'3':-5, '5':8, '9':-1}, '8':{'5':2},  '9':{'6':1}}
 
-def next(c):
-    if nodes[c] and str(c+1) in g.keys():
-        return str(c+1)
-    return 0
+#def next(c):
+#    if nodes[c] and str(c+1) in g.keys():
+#        return int(c+1)
+#    return 0
 
 def sumTo(start, end):
     sum=0
@@ -73,7 +73,7 @@ def model_data():
     endpoint = input("What block do you want to be the end point?\n")
 
     cur=nodes[int(endpoint)-1]
-    while cur.m_checked==0 and next(int(cur.m_id)):
+    while cur.m_checked==0 and int(cur.m_id) <= len(nodes):
         sIn=sum_in(str(cur.m_id))
         sOut=sum_out(str(cur.m_id))
         sTo=sumTo(str(cur.m_id), endpoint)
@@ -95,7 +95,10 @@ def model_data():
             else:
                 cur.m_orig=0
         cur.check()
-        cur=nodes[int(next(int(cur.m_id)))-1]
+        if len(nodes) > int(cur.m_id):
+            cur=nodes[int(cur.m_id)]
+        else:
+            return
 
 def print_models():
     print("Model 1:")
@@ -119,6 +122,30 @@ def print_models():
             print(origin, end='')
         else:
             print(origin)
+
+class App(tk.Tk):
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
+        self.canvas = tk.Canvas(self, width=500, height=500, borderwidth=0, highlightthickness=0)
+        self.canvas.pack(side="top", fill="both", expand="true")
+        self.rows = rows
+        self.columns = cols
+        self.cellwidth = 10
+        self.cellheight = 10
+        self.rect = {}
+        for column in range(cols):
+            for row in range(rows):
+                x1 = column*self.cellwidth
+                y1 = row * self.cellheight
+                x2 = x1 + self.cellwidth
+                y2 = y1 + self.cellheight
+                color = hex(nodes[column+row].through)
+                self.rect[row,column] = self.canvas.create_rectangle(x1,y1,x2,y2, fill="blue", tags="rect")
+
+#myapp = App()
+
+#myapp.master.title("Modeflow Output Window")
+#myapp.master.maxsize(11*rows, 12*col)
 
 userFile = ""
 while userFile != "Y" and userFile != "N":
@@ -190,37 +217,11 @@ if userFile == "Y":
             else:
                 g[str(i+1)].update({"0":float(frf_list[i])})
                 g["0"].update({str(i+1):-1*float(frf_list[i])})
-    model_data()
-    print_models()
+        model_data()
+        print_models()
+        #myapp.mainloop()
 else:
     model_data()
     print_models()
-    
-class App(tk.Tk):
-    def __init__(self, *args, **kwargs):
-        tk.Tk.__init__(self, *args, **kwargs)
-        self.canvas = tk.Canvas(self, width=500, height=500, borderwidth=0, highlightthickness=0)
-        self.canvas.pack(side="top", fill="both", expand="true")
-        self.rows = rows
-        self.columns = cols
-        self.cellwidth = 10
-        self.cellheight = 10
-        self.rect = {}
-        for column in range(cols):
-            for row in range(rows):
-                x1 = column*self.cellwidth
-                y1 = row * self.cellheight
-                x2 = x1 + self.cellwidth
-                y2 = y1 + self.cellheight
-                color = hex(nodes[column+row].through)
-                self.rect[row,column] = self.canvas.create_rectangle(x1,y1,x2,y2, fill="blue", tags="rect")
-        #self.redraw(1000)
-
-
-myapp = App()
-
-myapp.master.title("Modeflow Output Window")
-myapp.master.maxsize(11*rows, 12*col)
-
-myapp.mainloop()
+    #myapp.mainloop()
 
