@@ -3,8 +3,8 @@ import math
 #import tkinter
 import tkinter as tk
 #from Tkinter import *
-from modules.logic import game
-import options
+#from modules.logic import game
+#import options
 import random
 import os
 #importlib
@@ -42,6 +42,8 @@ def next(c):
 def sumTo(start, end):
     sum=0
     for key,value in g[start].items():
+        if int(key) <= 0:
+            return 0
         if value > 0:
             if key == end:
                 return value
@@ -52,6 +54,8 @@ def sumTo(start, end):
 def sum_in(id):
     sum=0
     for key,value in g[id].items():
+        if int(key) <= 0:
+            return 0
         if value < 0:
             sum+=abs(value)
     return sum
@@ -59,9 +63,62 @@ def sum_in(id):
 def sum_out(id):
     sum=0
     for key,value in g[id].items():
+        if int(key) <= 0:
+            return 0
         if value > 0:
             sum+=abs(value)
     return sum
+
+def model_data():
+    endpoint = input("What block do you want to be the end point?\n")
+
+    cur=nodes[int(endpoint)-1]
+    while cur.m_checked==0 and next(int(cur.m_id)):
+        sIn=sum_in(str(cur.m_id))
+        sOut=sum_out(str(cur.m_id))
+        sTo=sumTo(str(cur.m_id), endpoint)
+        if str(cur.m_id) == str(endpoint):
+            cur.m_percent = 1
+            cur.m_through=sIn
+            if sOut>sIn:
+                cur.m_orig=sOut-sIn
+            else:
+                cur.m_orig=0
+        else:
+            if sIn:
+                cur.m_percent=sTo/sIn
+            else:
+                cur.m_percent=0
+                cur.m_through=sIn*cur.m_percent
+            if sOut>sIn:
+                cur.m_orig=sOut-sIn*cur.m_percent
+            else:
+                cur.m_orig=0
+        cur.check()
+        cur=nodes[int(next(int(cur.m_id)))-1]
+
+def print_models():
+    print("Model 1:")
+    for i in nodes:
+        percent=str(i.m_percent*100)+"% "
+        if(int(i.m_id)%3):
+            print(percent, end='')
+        else:
+            print(percent)
+    print("Model 2:")
+    for i in nodes:
+        through=str(i.m_through)+" "
+        if(int(i.m_id)%3):
+            print(through, end='')
+        else:
+            print(through)
+    print("Model 3:")
+    for i in nodes:
+        origin=str(i.m_orig)+" "
+        if(int(i.m_id)%3):
+            print(origin, end='')
+        else:
+            print(origin)
 
 userFile = ""
 while userFile != "Y" and userFile != "N":
@@ -99,61 +156,46 @@ if userFile == "Y":
         if line[:4] == "ncol":
             cols = int(line[7:])
     os.system('./bash.sh')
-    #    print(line, end='')
-    #from mod import frf, fff
 
-#filename = input("What file do you want to use?\n")
-endpoint = input("What sensor do you want to be the end point?\n")
-
-cur=nodes[int(endpoint)-1]
-while cur.m_checked==0 and next(int(cur.m_id)):
-    sIn=sum_in(str(cur.m_id))
-    sOut=sum_out(str(cur.m_id))
-    sTo=sumTo(str(cur.m_id), endpoint)
-    if str(cur.m_id) == str(endpoint):
-        cur.m_percent = 1
-        cur.m_through=sIn
-        if sOut>sIn:
-            cur.m_orig=sOut-sIn
-        else:
-            cur.m_orig=0
-    else:
-        if sIn:
-            cur.m_percent=sTo/sIn
-        else:
-            cur.m_percent=0
-        cur.m_through=sIn*cur.m_percent
-        if sOut>sIn:
-            cur.m_orig=sOut-sIn*cur.m_percent
-        else:
-            cur.m_orig=0
-    cur.check()
-    cur=nodes[int(next(int(cur.m_id)))-1]
-
-print("Model 1:")
-for i in nodes:
-    percent=str(i.m_percent*100)+"% "
-    if(int(i.m_id)%3):
-        print(percent, end='')
-    else:
-        print(percent)
-
-print("Model 2:")
-for i in nodes:
-    through=str(i.m_through)+" "
-    if(int(i.m_id)%3):
-        print(through, end='')
-    else:
-        print(through)
-
-print("Model 3:")
-for i in nodes:
-    origin=str(i.m_orig)+" "
-    if(int(i.m_id)%3):
-        print(origin, end='')
-    else:
-        print(origin)
-
+if userFile == "Y":
+    fff = open("fff.txt", 'r')
+    frf = open("frf.txt", 'r')
+    nodes = []
+    g = {}
+    g.update({"0":{}})
+    g.update({"-1":{}})
+    for fff_data in fff:
+        fff_list = fff_data.split(", ")
+        for i in range(len(fff_list)):
+            g.update({str(i+1):{}})
+        frf_data = frf.readline()
+        frf_list = frf_data.split(", ")
+        for i in range(len(fff_list)):
+            nodes.append(Node(str(i+1)))
+            if i+1 == rows:
+                g[str(i+1)].update({"0":float(fff_list[i])})
+                g["0"].update({str(i+1):-1*float(fff_list[i])})
+                g[str(i+1)].update({"-1":float(frf_list[i])})
+                g["-1"].update({str(i+1):-1*float(frf_list[i])})
+                continue
+            if i+1 <= rows:
+                g[str(i+1)].update({"0":float(fff_list[i])})
+                g["0"].update({str(i+1):-1*float(fff_list[i])})
+            else:
+                g[str(i+1)].update({str((i+1)-rows):float(fff_list[i])})
+                g[str((i+1)-rows)].update({str(i+1):-1*float(fff_list[i])})
+            if i+1 % cols and i+2 <= (rows*cols):
+                g[str(i+1)].update({str((i+2)):float(frf_list[i])})
+                g[str((i+2))].update({str(i+1):-1*float(frf_list[i])})
+            else:
+                g[str(i+1)].update({"0":float(frf_list[i])})
+                g["0"].update({str(i+1):-1*float(frf_list[i])})
+    model_data()
+    print_models()
+else:
+    model_data()
+    print_models()
+    
 class App(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -161,8 +203,8 @@ class App(tk.Tk):
         self.canvas.pack(side="top", fill="both", expand="true")
         self.rows = rows
         self.columns = cols
-        self.cellwidth = 300/rows
-        self.cellheight = 300/cols
+        self.cellwidth = 10
+        self.cellheight = 10
         self.rect = {}
         for column in range(cols):
             for row in range(rows):
@@ -178,7 +220,7 @@ class App(tk.Tk):
 myapp = App()
 
 myapp.master.title("Modeflow Output Window")
-myapp.master.maxsize(300, 300)
+myapp.master.maxsize(11*rows, 12*col)
 
 myapp.mainloop()
 
