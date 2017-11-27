@@ -54,18 +54,20 @@ def sum_out(id):
     return sum
 
 userFile = ""
-while userFile != "Y" or userFile != "N":
-    userFile = input("Do you want to use your own Modflow model? (Y/N)\n")
+while userFile != "Y" and userFile != "N":
+    userFile = input("Do you want to use your own Modflow model? (Y/N)")
     userFile=userFile.upper()
-    if userFile != "Y" or userFile != "N":
+    if userFile != "Y" and userFile != "N":
         print("Invalid Input\n")
 
 modFile=""
 if userFile == "Y":
     modFile=input("Enter the file name of of the model you plan to use:\n")
-    f=openmodFile, 'r'
-    for line in f:
-        print(line)
+    from modFile import fff
+    print(fff)
+    #f=open(modFile, 'r')
+    #for line in f:
+    #    print(line, end='')
 
 #filename = input("What file do you want to use?\n")
 endpoint = input("What sensor do you want to be the end point?\n")

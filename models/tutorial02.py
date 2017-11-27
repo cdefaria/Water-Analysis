@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 import numpy as np
 import flopy
 
@@ -33,7 +33,7 @@ steady = [True, False, False]
 
 # Flopy objects
 modelname = 'tutorial2'
-mf = flopy.modflow.Modflow(modelname, exe_name='mf2005')
+mf = flopy.modflow.Modflow(modelname, exe_name='../mf2005')
 dis = flopy.modflow.ModflowDis(mf, nlay, nrow, ncol, delr=delr, delc=delc,
                                top=ztop, botm=botm[1:],
                                nper=nper, perlen=perlen, nstp=nstp,
