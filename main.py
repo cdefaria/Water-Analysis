@@ -7,6 +7,7 @@ import tkinter as tk
 #import options
 import random
 import os
+import webcolors as wc
 #importlib
 #import print_function 
 #from . import graph
@@ -25,7 +26,7 @@ class Node:
 
 nodes=[]
 rows = 3
-col = 3
+cols = 3
 
 for i in range(1,10):
     nodes.append(Node(str(i)))
@@ -97,6 +98,8 @@ def model_data():
         cur.check()
         if len(nodes) > int(cur.m_id):
             cur=nodes[int(cur.m_id)]
+            while cur.m_id not in g.keys():
+            	cur=nodes[int(cur.m_id)]
         else:
             return
 
@@ -123,6 +126,24 @@ def print_models():
         else:
             print(origin)
 
+def closest_colour(requested_colour):
+    min_colours = {}
+    for key, name in webcolors.css3_hex_to_names.items():
+        r_c, g_c, b_c = webcolors.hex_to_rgb(key)
+        rd = (r_c - requested_colour[0]) ** 2
+        gd = (g_c - requested_colour[1]) ** 2
+        bd = (b_c - requested_colour[2]) ** 2
+        min_colours[(rd + gd + bd)] = name
+    return min_colours[min(min_colours.keys())]
+
+def get_colour_name(requested_colour):
+    try:
+        closest_name = actual_name = webcolors.rgb_to_name(requested_colour)
+    except ValueError:
+        closest_name = closest_colour(requested_colour)
+        actual_name = None
+    return closest_name
+
 class App(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
@@ -130,8 +151,8 @@ class App(tk.Tk):
         self.canvas.pack(side="top", fill="both", expand="true")
         self.rows = rows
         self.columns = cols
-        self.cellwidth = 10
-        self.cellheight = 10
+        self.cellwidth = 100
+        self.cellheight = 100
         self.rect = {}
         for column in range(cols):
             for row in range(rows):
@@ -139,13 +160,11 @@ class App(tk.Tk):
                 y1 = row * self.cellheight
                 x2 = x1 + self.cellwidth
                 y2 = y1 + self.cellheight
-                color = hex(nodes[column+row].through)
-                self.rect[row,column] = self.canvas.create_rectangle(x1,y1,x2,y2, fill="blue", tags="rect")
+                color = "blue"
+                #color = get_colour_name(wc.hex_to_rgb(hex(int(nodes[column+row].m_percent*100))))
+                #color = wc.rgb_to_name(hex(int(nodes[column+row].m_percent*100)), spec='css3')
+                self.rect[row,column] = self.canvas.create_rectangle(x1,y1,x2,y2, fill=color, tags="rect")
 
-#myapp = App()
-
-#myapp.master.title("Modeflow Output Window")
-#myapp.master.maxsize(11*rows, 12*col)
 
 userFile = ""
 while userFile != "Y" and userFile != "N":
@@ -193,12 +212,12 @@ if userFile == "Y":
     g.update({"-1":{}})
     for fff_data in fff:
         fff_list = fff_data.split(", ")
-        for i in range(len(fff_list)):
+        for i in range((cols*rows)):
             g.update({str(i+1):{}})
+            nodes.append(Node(str(i+1)))
         frf_data = frf.readline()
         frf_list = frf_data.split(", ")
         for i in range(len(fff_list)):
-            nodes.append(Node(str(i+1)))
             if i+1 == rows:
                 g[str(i+1)].update({"0":float(fff_list[i])})
                 g["0"].update({str(i+1):-1*float(fff_list[i])})
@@ -219,9 +238,15 @@ if userFile == "Y":
                 g["0"].update({str(i+1):-1*float(frf_list[i])})
         model_data()
         print_models()
-        #myapp.mainloop()
+        myapp = App()
+        #myapp.master.title("Modeflow Output Window")
+        #myapp.master.maxsize(11*rows, 12*cols)
+        myapp.mainloop()
 else:
     model_data()
     print_models()
-    #myapp.mainloop()
+    myapp = App()
+    #myapp.master.title("Modeflow Output Window")
+    #myapp.master.maxsize(11*rows, 12*cols)
+    myapp.mainloop()
 
