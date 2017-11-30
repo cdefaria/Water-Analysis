@@ -49,21 +49,23 @@ def pick_model():
         else:
             print("Invalid model")
 
-# def trace(start,end):
-#     if int(start) < 1:
-#         return 0
-#     for key,value in g[start].items():
-#         if key == start and value > 0:
-#             return 1
-#         else:
-#             val = trace(key, end)
-#             if val == 1:
-#                 return 1
+def trace(start,end):
+    if int(start) < 1:
+        return 0
+    for key,value in g[start].items():
+        if value <= 0:
+            continue
+        if key == start and value > 0:
+            return 1
+        else:
+            val = trace(key, end)
+            if val == 1:
+                return 1
 
 def sumTo(start, end):
     sum=0
-    # if trace(start, end) == 0:
-    #     return 0
+    if trace(start, end) == 0:
+        return 0
     for key,value in g[start].items():
         if int(key) <= 0:
             return 0
