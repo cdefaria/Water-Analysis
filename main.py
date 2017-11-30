@@ -1,17 +1,11 @@
 #!/usr/bin/env python
 import math
-#import tkinter
 import tkinter as tk
-#from Tkinter import *
-#from modules.logic import game
-#import options
 import random
 import os
 import webcolors as wc
 #importlib
-#import print_function 
-#from . import graph
-#import topSort.py
+#import print_function
 
 class Node:
     m_id=""
@@ -24,6 +18,7 @@ class Node:
     def check(self):
         self.m_checked=1
 
+modelNum = 0
 nodes=[]
 rows = 3
 cols = 3
@@ -40,8 +35,35 @@ g = {'1':{'2':-5, '4':-5}, '2':{'1':5, '3':-5, '5':-5}, '3':{'2':5, '6':5}, '4':
 #        return int(c+1)
 #    return 0
 
+def pick_model():
+    modelNum = 0
+    while modelNum < 1 or modelNum > 3:
+        print("\t1) Percent of water that affects endpoint")
+        print("\t2) Troughput of water that affects endpoint")
+        print("\t3) Water throughput originating in a square that affects the endpoint")
+        num = input("Select a model number to generate (1-3): ")
+        if num.isdigit():
+            modelNum = int(num)
+            if modelNum < 1 or modelNum > 3:
+                print("Invalid model")
+        else:
+            print("Invalid model")
+
+# def trace(start,end):
+#     if int(start) < 1:
+#         return 0
+#     for key,value in g[start].items():
+#         if key == start and value > 0:
+#             return 1
+#         else:
+#             val = trace(key, end)
+#             if val == 1:
+#                 return 1
+
 def sumTo(start, end):
     sum=0
+    # if trace(start, end) == 0:
+    #     return 0
     for key,value in g[start].items():
         if int(key) <= 0:
             return 0
@@ -160,7 +182,24 @@ class App(tk.Tk):
                 y1 = row * self.cellheight
                 x2 = x1 + self.cellwidth
                 y2 = y1 + self.cellheight
-                color = "blue"
+                c = ""
+                color = "black"
+                if modelNum == 1:
+                    c = str(hex(int(nodes[column+row].m_percent*100)))
+                elif modelNum == 2:
+                    c = str(hex(int(nodes[column+row].m_through)))
+                elif modelNum == 3:
+                    c = str(hex(int(nodes[column+row].m_orig)))
+                if c != "":
+                    c.replace("0x", "#")
+                    l = len(c)
+                    if l < 9:
+                        for i in range((9-l)):
+                            c.replace("#", "#0")
+                    elif l > 9:
+                        c = c[:9]
+                    color = get_colour_name(wc.hex_to_rgb(c))
+
                 #color = get_colour_name(wc.hex_to_rgb(hex(int(nodes[column+row].m_percent*100))))
                 #color = wc.rgb_to_name(hex(int(nodes[column+row].m_percent*100)), spec='css3')
                 self.rect[row,column] = self.canvas.create_rectangle(x1,y1,x2,y2, fill=color, tags="rect")
@@ -172,6 +211,8 @@ while userFile != "Y" and userFile != "N":
     userFile=userFile.upper()
     if userFile != "Y" and userFile != "N":
         print("Invalid Input\n")
+
+pick_model()
 
 modFile=""
 if userFile == "Y":
@@ -239,14 +280,9 @@ if userFile == "Y":
         model_data()
         print_models()
         myapp = App()
-        #myapp.master.title("Modeflow Output Window")
-        #myapp.master.maxsize(11*rows, 12*cols)
         myapp.mainloop()
 else:
     model_data()
     print_models()
     myapp = App()
-    #myapp.master.title("Modeflow Output Window")
-    #myapp.master.maxsize(11*rows, 12*cols)
     myapp.mainloop()
-
