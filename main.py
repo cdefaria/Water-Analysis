@@ -1,8 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import math
 import tkinter as tk
 import random
 import os
+import time
 import webcolors as wc
 #importlib
 #import print_function
@@ -18,7 +19,6 @@ class Node:
     def check(self):
         self.m_checked=1
 
-modelNum = 0
 nodes=[]
 rows = 3
 cols = 3
@@ -48,6 +48,7 @@ def pick_model():
                 print("Invalid model")
         else:
             print("Invalid model")
+    return modelNum
 
 def trace(start,end):
     if int(start) < 1:
@@ -178,6 +179,8 @@ class App(tk.Tk):
         self.cellwidth = 100
         self.cellheight = 100
         self.rect = {}
+        modelNum = 1
+        # modelNum = pick_model()
         for column in range(cols):
             for row in range(rows):
                 x1 = column*self.cellwidth
@@ -185,22 +188,23 @@ class App(tk.Tk):
                 x2 = x1 + self.cellwidth
                 y2 = y1 + self.cellheight
                 c = ""
-                color = "black"
+                color = "blue"
                 if modelNum == 1:
                     c = str(hex(int(nodes[column+row].m_percent*100)))
                 elif modelNum == 2:
-                    c = str(hex(int(nodes[column+row].m_through)))
+                    c += str(hex(int(nodes[column+row].m_through)))
                 elif modelNum == 3:
-                    c = str(hex(int(nodes[column+row].m_orig)))
-                if c != "":
-                    c.replace("0x", "#")
-                    l = len(c)
-                    if l < 9:
-                        for i in range((9-l)):
-                            c.replace("#", "#0")
-                    elif l > 9:
-                        c = c[:9]
-                    color = get_colour_name(wc.hex_to_rgb(c))
+                    c += str(hex(int(nodes[column+row].m_orig)))
+                # if c:
+                    # c.replace("0x", "#")
+                c = "0x0000" + c[2:]
+                l = len(c)
+                # if l < 9:
+                    # for i in range((9-l)):
+                    # c.replace("0x", "0x000000")
+                if l > 8:
+                    c = c[:8]
+                color = get_colour_name(wc.hex_to_rgb(c))
 
                 #color = get_colour_name(wc.hex_to_rgb(hex(int(nodes[column+row].m_percent*100))))
                 #color = wc.rgb_to_name(hex(int(nodes[column+row].m_percent*100)), spec='css3')
@@ -213,8 +217,6 @@ while userFile != "Y" and userFile != "N":
     userFile=userFile.upper()
     if userFile != "Y" and userFile != "N":
         print("Invalid Input\n")
-
-pick_model()
 
 modFile=""
 if userFile == "Y":
@@ -282,9 +284,11 @@ if userFile == "Y":
         model_data()
         print_models()
         myapp = App()
+        time.sleep(15)
         myapp.mainloop()
 else:
     model_data()
     print_models()
     myapp = App()
+    time.sleep(15)
     myapp.mainloop()
