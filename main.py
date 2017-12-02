@@ -132,21 +132,21 @@ def print_models():
     print("Model 1:")
     for i in nodes:
         percent=str(i.m_percent*100)+"% "
-        if(int(i.m_id)%3):
+        if(int(i.m_id)%cols):
             print(percent, end='')
         else:
             print(percent)
     print("Model 2:")
     for i in nodes:
         through=str(i.m_through)+" "
-        if(int(i.m_id)%3):
+        if(int(i.m_id)%cols):
             print(through, end='')
         else:
             print(through)
     print("Model 3:")
     for i in nodes:
         origin=str(i.m_orig)+" "
-        if(int(i.m_id)%3):
+        if(int(i.m_id)%cols):
             print(origin, end='')
         else:
             print(origin)
@@ -176,35 +176,44 @@ class App(tk.Tk):
         self.canvas.pack(side="top", fill="both", expand="true")
         self.rows = rows
         self.columns = cols
-        self.cellwidth = 100
-        self.cellheight = 100
+        self.cellwidth = 500/cols
+        self.cellheight = 500/rows
         self.rect = {}
         modelNum = 1
-        # modelNum = pick_model()
+        #modelNum = pick_model()
         for column in range(cols):
             for row in range(rows):
                 x1 = column*self.cellwidth
                 y1 = row * self.cellheight
                 x2 = x1 + self.cellwidth
                 y2 = y1 + self.cellheight
-                c = ""
-                color = "blue"
+                c = 0
+                color = "black"
                 if modelNum == 1:
-                    c = str(hex(int(nodes[column+row].m_percent*100)))
+                    #c = str(hex(int(nodes[column+row].m_percent*100)))
+                    c = int(nodes[column+row].m_percent*100)
                 elif modelNum == 2:
-                    c += str(hex(int(nodes[column+row].m_through)))
+                    #c += str(hex(int(nodes[column+row].m_through)))
+                    c = int(nodes[column+row].m_through)
                 elif modelNum == 3:
-                    c += str(hex(int(nodes[column+row].m_orig)))
+                    #c = str(hex(int(nodes[column+row].m_orig)))
+                    c = int(nodes[column+row].m_orig)
+                if c >= 75:
+                    color = "aqua"
+                elif c >= 50:
+                    color = "blue"
+                elif c >= 25:
+                    color = "navy"
                 # if c:
                     # c.replace("0x", "#")
-                c = "0x0000" + c[2:]
-                l = len(c)
+                #c = "0x0000" + c[2:]
+                #l = len(c)
                 # if l < 9:
                     # for i in range((9-l)):
                     # c.replace("0x", "0x000000")
-                if l > 8:
-                    c = c[:8]
-                color = get_colour_name(wc.hex_to_rgb(c))
+                #if l > 8:
+                #    c = c[:8]
+                #color = get_colour_name(wc.hex_to_rgb(c))
 
                 #color = get_colour_name(wc.hex_to_rgb(hex(int(nodes[column+row].m_percent*100))))
                 #color = wc.rgb_to_name(hex(int(nodes[column+row].m_percent*100)), spec='css3')
