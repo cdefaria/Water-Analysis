@@ -20,21 +20,27 @@ class Node:
         self.m_checked=1
 
 nodes=[]
+q = []
 rows = 3
 cols = 3
 
 for i in range(1,10):
     nodes.append(Node(str(i)))
 
-#nodes.append(0)
 
 g = {'1':{'2':-5, '4':-5}, '2':{'1':5, '3':-5, '5':-5}, '3':{'2':5, '6':5}, '4':{'1':5, '5':-5}, '5':{'2':5, '4':5, '6':-8, '8':-2}, '6':{'3':-5, '5':8, '9':-1}, '8':{'5':2},  '9':{'6':1}}
 
-#def next(c):
-#    if nodes[c] and str(c+1) in g.keys():
-#        return int(c+1)
-#    return 0
-
+def gen_queue(index):
+    l = []
+    for key,value in g[index].items():
+        if int(key) < 1 or key in q:
+            continue
+        elif int(value) < 0:
+            q.append(key)
+            l.append(key)
+    for i in l:
+        gen_queue(i)
+    
 def pick_model():
     modelNum = 0
     while modelNum < 1 or modelNum > 3:
@@ -62,6 +68,7 @@ def trace(start,end):
             val = trace(key, end)
             if val == 1:
                 return 1
+    return 0
 
 def sumTo(start, end):
     sum=0
@@ -74,7 +81,7 @@ def sumTo(start, end):
             if key == end:
                 return value
             else:
-                sum+=(value+sumTo(key,end))
+                sum+=((value*nodes[(int(key)-1)].m_percent)+sumTo(key,end))
     return sum
 
 def sum_in(id):
@@ -97,9 +104,15 @@ def sum_out(id):
 
 def model_data():
     endpoint = input("What block do you want to be the end point?\n")
+    if endpoint in g.keys() and int(endpoint) > 0:
+        q.append(endpoint)
+        gen_queue(endpoint)
+    else:
+        print("Invalid Block")
+        exit()
 
-    cur=nodes[int(endpoint)-1]
-    while cur.m_checked==0 and int(cur.m_id) <= len(nodes):
+    cur=nodes[int(q.pop(0))-1]
+    while cur.m_checked==0:# and int(cur.m_id) <= len(nodes):
         sIn=sum_in(str(cur.m_id))
         sOut=sum_out(str(cur.m_id))
         sTo=sumTo(str(cur.m_id), endpoint)
@@ -121,10 +134,8 @@ def model_data():
             else:
                 cur.m_orig=0
         cur.check()
-        if len(nodes) > int(cur.m_id):
-            cur=nodes[int(cur.m_id)]
-            while cur.m_id not in g.keys():
-            	cur=nodes[int(cur.m_id)]
+        if len(q):
+            cur = nodes[int(q.pop(0))-1]
         else:
             return
 
@@ -204,21 +215,7 @@ class App(tk.Tk):
                     color = "blue"
                 elif c >= 25:
                     color = "navy"
-                # if c:
-                    # c.replace("0x", "#")
-                #c = "0x0000" + c[2:]
-                #l = len(c)
-                # if l < 9:
-                    # for i in range((9-l)):
-                    # c.replace("0x", "0x000000")
-                #if l > 8:
-                #    c = c[:8]
-                #color = get_colour_name(wc.hex_to_rgb(c))
-
-                #color = get_colour_name(wc.hex_to_rgb(hex(int(nodes[column+row].m_percent*100))))
-                #color = wc.rgb_to_name(hex(int(nodes[column+row].m_percent*100)), spec='css3')
                 self.rect[row,column] = self.canvas.create_rectangle(x1,y1,x2,y2, fill=color, tags="rect")
-
 
 userFile = ""
 while userFile != "Y" and userFile != "N":
@@ -230,8 +227,6 @@ while userFile != "Y" and userFile != "N":
 modFile=""
 if userFile == "Y":
     modFile=input("Enter the file name of of the model you plan to use:\n")
-    #importlib.import_module(modFile)
-    #print(frf)
     f=open(modFile, 'r')
     exe=open("mod.py", 'w')
     exe.write("#!/usr/bin/env python3\n")
@@ -243,6 +238,10 @@ if userFile == "Y":
             exe.write("mf = flopy.modflow.Modflow(modelname, exe_name='./mf2005')")
             continue
         exe.write(line)
+        if line[:9] == "modelname":
+            exe.write("f.open(modelname+\".cbc\", \'w\')")
+            exe.write("f.write(\"\n\")")
+            exe.write("f.close()")
         if line[:3] == "frf":
             exe.write("right=open(\"frf.txt\", \'w\')\n")
             exe.write("right.write(\', \'.join([str(x) for x in frf]))\n")
@@ -293,11 +292,11 @@ if userFile == "Y":
         model_data()
         print_models()
         myapp = App()
-        time.sleep(15)
+        time.sleep(5)
         myapp.mainloop()
 else:
     model_data()
     print_models()
     myapp = App()
-    time.sleep(15)
+    time.sleep(5)
     myapp.mainloop()
