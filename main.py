@@ -27,7 +27,6 @@ cols = 3
 for i in range(1,10):
     nodes.append(Node(str(i)))
 
-
 g = {'1':{'2':-5, '4':-5}, '2':{'1':5, '3':-5, '5':-5}, '3':{'2':5, '6':5}, '4':{'1':5, '5':-5}, '5':{'2':5, '4':5, '6':-8, '8':-2}, '6':{'3':-5, '5':8, '9':-1}, '8':{'5':2},  '9':{'6':1}}
 
 def gen_queue(index):
@@ -68,7 +67,7 @@ def trace(start,end):
             val = trace(key, end)
             if val == 1:
                 return 1
-    return 0
+    #return 0
 
 def sumTo(start, end):
     sum=0
@@ -81,14 +80,15 @@ def sumTo(start, end):
             if key == end:
                 return value
             else:
-                sum+=((value*nodes[(int(key)-1)].m_percent)+sumTo(key,end))
+                if sum_out(key):
+                    sum+=((value*(value/sum_out(key)))+sumTo(key,end))
     return sum
 
 def sum_in(id):
     sum=0
     for key,value in g[id].items():
-        if int(key) <= 0:
-            return 0
+        #if int(key) <= 0:
+        #    return 0
         if value < 0:
             sum+=abs(value)
     return sum
@@ -96,8 +96,8 @@ def sum_in(id):
 def sum_out(id):
     sum=0
     for key,value in g[id].items():
-        if int(key) <= 0:
-            return 0
+        #if int(key) <= 0:
+        #    continue
         if value > 0:
             sum+=abs(value)
     return sum
@@ -111,11 +111,13 @@ def model_data():
         print("Invalid Block")
         exit()
 
-    cur=nodes[int(q.pop(0))-1]
-    while cur.m_checked==0:# and int(cur.m_id) <= len(nodes):
+    #print(len(q))
+    cur=nodes[(int(q.pop(0))-1)]
+    while 1:#cur.m_checked==0:# and int(cur.m_id) <= len(nodes):
         sIn=sum_in(str(cur.m_id))
         sOut=sum_out(str(cur.m_id))
         sTo=sumTo(str(cur.m_id), endpoint)
+        #print(sTo)
         if str(cur.m_id) == str(endpoint):
             cur.m_percent = 1
             cur.m_through=sIn
@@ -124,18 +126,20 @@ def model_data():
             else:
                 cur.m_orig=0
         else:
-            if sIn:
-                cur.m_percent=sTo/sIn
+            if sOut:
+                cur.m_percent=sTo/sOut
+                if cur.m_percent > 1:
+                    cur.m_percent = 1
             else:
                 cur.m_percent=0
-                cur.m_through=sIn*cur.m_percent
+                cur.m_through=sOut*cur.m_percent
             if sOut>sIn:
-                cur.m_orig=sOut-sIn*cur.m_percent
+                cur.m_orig=(sOut-sIn)*cur.m_percent
             else:
                 cur.m_orig=0
         cur.check()
         if len(q):
-            cur = nodes[int(q.pop(0))-1]
+            cur = nodes[(int(q.pop(0))-1)]
         else:
             return
 
@@ -192,23 +196,25 @@ class App(tk.Tk):
         self.rect = {}
         modelNum = 1
         #modelNum = pick_model()
+        i=0
         for column in range(cols):
             for row in range(rows):
-                x1 = column*self.cellwidth
-                y1 = row * self.cellheight
-                x2 = x1 + self.cellwidth
-                y2 = y1 + self.cellheight
+                x1 = row*self.cellwidth
+                y1 = column*self.cellheight
+                x2 = x1+self.cellwidth
+                y2 = y1+self.cellheight
                 c = 0
                 color = "black"
                 if modelNum == 1:
                     #c = str(hex(int(nodes[column+row].m_percent*100)))
-                    c = int(nodes[column+row].m_percent*100)
+                    c = int(nodes[i].m_percent*100)
                 elif modelNum == 2:
                     #c += str(hex(int(nodes[column+row].m_through)))
-                    c = int(nodes[column+row].m_through)
+                    c = int(nodes[i].m_through)
                 elif modelNum == 3:
                     #c = str(hex(int(nodes[column+row].m_orig)))
-                    c = int(nodes[column+row].m_orig)
+                    c = int(nodes[i].m_orig)
+                i+=1
                 if c >= 75:
                     color = "aqua"
                 elif c >= 50:
