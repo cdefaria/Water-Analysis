@@ -23,6 +23,7 @@ nodes=[]
 q = []
 rows = 3
 cols = 3
+modelnum = 1
 
 for i in range(1,10):
     nodes.append(Node(str(i)))
@@ -43,9 +44,9 @@ def gen_queue(index):
 def pick_model():
     modelNum = 0
     while modelNum < 1 or modelNum > 3:
-        print("\t1) Percent of water that affects endpoint")
-        print("\t2) Troughput of water that affects endpoint")
-        print("\t3) Water throughput originating in a square that affects the endpoint")
+        print("\t1) Percent of water that effects endpoint")
+        print("\t2) Throughput of water that effects endpoint")
+        print("\t3) Water throughput originating in a square that effects the endpoint")
         num = input("Select a model number to generate (1-3): ")
         if num.isdigit():
             modelNum = int(num)
@@ -67,7 +68,6 @@ def trace(start,end):
             val = trace(key, end)
             if val == 1:
                 return 1
-    #return 0
 
 def sumTo(start, end):
     sum=0
@@ -87,8 +87,6 @@ def sumTo(start, end):
 def sum_in(id):
     sum=0
     for key,value in g[id].items():
-        #if int(key) <= 0:
-        #    return 0
         if value < 0:
             sum+=abs(value)
     return sum
@@ -96,13 +94,12 @@ def sum_in(id):
 def sum_out(id):
     sum=0
     for key,value in g[id].items():
-        #if int(key) <= 0:
-        #    continue
         if value > 0:
             sum+=abs(value)
     return sum
 
 def model_data():
+    modelnum = pick_model()
     endpoint = input("What block do you want to be the end point?\n")
     if endpoint in g.keys() and int(endpoint) > 0:
         q.append(endpoint)
@@ -111,16 +108,14 @@ def model_data():
         print("Invalid Block")
         exit()
 
-    #print(len(q))
     cur=nodes[(int(q.pop(0))-1)]
-    while 1:#cur.m_checked==0:# and int(cur.m_id) <= len(nodes):
+    while 1:
         sIn=sum_in(str(cur.m_id))
         sOut=sum_out(str(cur.m_id))
         sTo=sumTo(str(cur.m_id), endpoint)
-        #print(sTo)
         if str(cur.m_id) == str(endpoint):
             cur.m_percent = 1
-            cur.m_through=sIn
+            cur.m_through=sOut
             if sOut>sIn:
                 cur.m_orig=sOut-sIn
             else:
@@ -146,21 +141,21 @@ def model_data():
 def print_models():
     print("Model 1:")
     for i in nodes:
-        percent=str(i.m_percent*100)+"% "
+        percent=str(float(i.m_percent)*100)+"% "
         if(int(i.m_id)%cols):
             print(percent, end='')
         else:
             print(percent)
     print("Model 2:")
     for i in nodes:
-        through=str(i.m_through)+" "
+        through=str(float(i.m_through))+" "
         if(int(i.m_id)%cols):
             print(through, end='')
         else:
             print(through)
     print("Model 3:")
     for i in nodes:
-        origin=str(i.m_orig)+" "
+        origin=str(float(i.m_orig))+" "
         if(int(i.m_id)%cols):
             print(origin, end='')
         else:
@@ -168,8 +163,8 @@ def print_models():
 
 def closest_colour(requested_colour):
     min_colours = {}
-    for key, name in webcolors.css3_hex_to_names.items():
-        r_c, g_c, b_c = webcolors.hex_to_rgb(key)
+    for key, name in wc.css3_hex_to_names.items():
+        r_c, g_c, b_c = wc.hex_to_rgb(key)
         rd = (r_c - requested_colour[0]) ** 2
         gd = (g_c - requested_colour[1]) ** 2
         bd = (b_c - requested_colour[2]) ** 2
@@ -178,7 +173,7 @@ def closest_colour(requested_colour):
 
 def get_colour_name(requested_colour):
     try:
-        closest_name = actual_name = webcolors.rgb_to_name(requested_colour)
+        closest_name = actual_name = wc.rgb_to_name(requested_colour)
     except ValueError:
         closest_name = closest_colour(requested_colour)
         actual_name = None
@@ -194,8 +189,7 @@ class App(tk.Tk):
         self.cellwidth = 500/cols
         self.cellheight = 500/rows
         self.rect = {}
-        modelNum = 1
-        #modelNum = pick_model()
+        #modelNum = 1
         i=0
         for column in range(cols):
             for row in range(rows):
@@ -205,22 +199,20 @@ class App(tk.Tk):
                 y2 = y1+self.cellheight
                 c = 0
                 color = "black"
-                if modelNum == 1:
-                    #c = str(hex(int(nodes[column+row].m_percent*100)))
+                if modelnum == 1:
                     c = int(nodes[i].m_percent*100)
-                elif modelNum == 2:
-                    #c += str(hex(int(nodes[column+row].m_through)))
+                elif modelnum == 2:
                     c = int(nodes[i].m_through)
-                elif modelNum == 3:
-                    #c = str(hex(int(nodes[column+row].m_orig)))
+                elif modelnum == 3:
                     c = int(nodes[i].m_orig)
                 i+=1
-                if c >= 75:
-                    color = "aqua"
-                elif c >= 50:
-                    color = "blue"
-                elif c >= 25:
-                    color = "navy"
+                color = get_colour_name((0, 0, c*2))
+                #if c >= 75:
+                #    color = "aqua"
+                #elif c >= 50:
+                #    color = "blue"
+                #elif c >= 25:
+                #    color = "navy"
                 self.rect[row,column] = self.canvas.create_rectangle(x1,y1,x2,y2, fill=color, tags="rect")
 
 userFile = ""
@@ -298,11 +290,11 @@ if userFile == "Y":
         model_data()
         print_models()
         myapp = App()
-        time.sleep(5)
+        #time.sleep(5)
         myapp.mainloop()
 else:
     model_data()
     print_models()
     myapp = App()
-    time.sleep(5)
+    #time.sleep(5)
     myapp.mainloop()
