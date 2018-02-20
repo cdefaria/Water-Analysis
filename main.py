@@ -236,10 +236,10 @@ if userFile == "Y":
             exe.write("mf = flopy.modflow.Modflow(modelname, exe_name='./mf2005')")
             continue
         exe.write(line)
-        if line[:9] == "modelname":
-            exe.write("f.open(modelname+\".cbc\", \'w\')")
-            exe.write("f.write(\"\n\")")
-            exe.write("f.close()")
+        #if line[:9] == "modelname":
+        #    exe.write("f.open(modelname+\".cbc\", \'w\')")
+        #    exe.write("f.write(\"\n\")")
+        #    exe.write("f.close()")
         if line[:3] == "frf":
             exe.write("right=open(\"frf.txt\", \'w\')\n")
             exe.write("right.write(\', \'.join([str(x) for x in frf]))\n")

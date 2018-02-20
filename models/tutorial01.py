@@ -5,7 +5,7 @@ import flopy
 
 # Assign name and create modflow model object
 modelname = 'tutorial1'
-mf = flopy.modflow.Modflow(modelname, exe_name='../mf2005')
+mf = flopy.modflow.Modflow(modelname, exe_name='./mf2005')
 
 # Model domain and grid definition
 Lx = 1000.
